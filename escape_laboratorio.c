@@ -153,8 +153,8 @@ void inicializar_nivel(nivel_t* nivel, int numero_nivel, int cantidad_baldosas_p
 }
 
 int estado_juego(juego_t juego) {
-    if ((juego.nivel_actual == CUARTO_NIVEL) && (juego.personaje.posicion.fil == juego.niveles[juego.nivel_actual].salida.fil)
-         && (juego.personaje.posicion.col == juego.niveles[juego.nivel_actual].salida.col) && (juego.personaje.tiene_llave)
+    if ((juego.nivel_actual == CUARTO_NIVEL) && (juego.personaje.posicion.fil == juego.niveles[juego.nivel_actual-1].salida.fil)
+         && (juego.personaje.posicion.col == juego.niveles[juego.nivel_actual-1].salida.col) && (juego.personaje.tiene_llave)
          && (juego.personaje.movimientos > 0)) {
         return 1;
     } else if (juego.personaje.movimientos <= 0){
@@ -225,7 +225,7 @@ void cargar_personaje(personaje_t* personaje, char tipo_personaje) {
     personaje->movimientos = MOVIMIENTOS_INICIALES;
     personaje->murio = false;
     personaje->presiono_interruptor = false;
-    personaje->tiene_llave = false;
+    personaje->tiene_llave = true; //TODO Modificar
 }
 
 void inicializar_juego(juego_t* juego, char tipo_personaje) {
@@ -333,7 +333,7 @@ void mover_personaje(juego_t* juego, char movimiento) {
     bool detener_personaje = false;
     juego->personaje.movimientos--;
 
-    while (!hay_pared(&(juego->niveles[juego->nivel_actual-1]), &siguiente_posicion) && !detener_personaje) {        
+    while (!detener_personaje && !hay_pared(&(juego->niveles[juego->nivel_actual-1]), &siguiente_posicion)) {        
         juego->personaje.posicion.fil = siguiente_posicion.fil;
         juego->personaje.posicion.col = siguiente_posicion.col;
 
@@ -396,12 +396,17 @@ void mover_personaje(juego_t* juego, char movimiento) {
 
         int estado_del_nivel = estado_nivel(juego->personaje, juego->niveles[juego->nivel_actual - 1].salida);
 
-        if (estado_del_nivel == 1) {
-            juego->nivel_actual += 1;
-        }
-
         detener_el_tiempo(0.5);
         mostrar_juego(*juego);
+
+        if ((estado_del_nivel == 1) && (juego->nivel_actual < 4)) {
+            juego->nivel_actual += 1;
+            detener_personaje = true;
+        }
+
+        if ((estado_del_nivel == 1) && (juego->nivel_actual = 4)) {
+            detener_personaje = true;
+        }
         obtener_siguiente_posicion(&siguiente_posicion, movimiento);
     }
 }

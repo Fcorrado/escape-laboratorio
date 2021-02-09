@@ -11,7 +11,7 @@ int main() {
     char movimiento;
     char tipo_personaje;
     detector_de_personajes(&tipo_personaje);
-    //tipo_personaje = 'S';
+    //tipo_personaje = 'H';
 
     printf(" %c \n", tipo_personaje);
 
@@ -28,7 +28,7 @@ int main() {
         scanf(" %c", &movimiento);
         mover_personaje(&juego, movimiento);
         estado = estado_juego(juego);
-        //printf("evalue el estado del juego y es %i", estado);
+        printf("evalue el estado del juego y es %i", estado);
         printf("Te quedan %i movimientos \n", juego.personaje.movimientos);
     }
 
