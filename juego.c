@@ -10,8 +10,8 @@ int main() {
     juego_t juego;
     char movimiento;
     char tipo_personaje;
-    detector_de_personajes(&tipo_personaje);
-    //tipo_personaje = 'H';
+    //detector_de_personajes(&tipo_personaje);
+    tipo_personaje = 'H';
 
     printf(" %c \n", tipo_personaje);
 

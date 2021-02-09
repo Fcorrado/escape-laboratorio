@@ -42,6 +42,35 @@ bool hay_pared(nivel_t* nivel, coordenada_t* coordenada) {
     return false;
 }
 
+bool es_coordenada_disponible(nivel_t* nivel, coordenada_t* coordenada) {
+    bool hay_pared_en_posicion = hay_pared(nivel, coordenada);
+    bool pude_ubicar = false;
+    
+    bool entrada_y_coordenada_iguales = nivel->entrada.fil == coordenada->fil && nivel->entrada.col == coordenada->col;
+    bool salida_y_coordenada_iguales = nivel->salida.fil == coordenada->fil && nivel->salida.col == coordenada->col;
+    
+    bool hay_obstaculos = false;
+    for (int i = 0; i < nivel->tope_obstaculos; i++) {
+        if(nivel->obstaculos[i].posicion.fil == coordenada->fil && nivel->obstaculos[i].posicion.col == coordenada->col) {
+            hay_obstaculos = true;
+        }
+    }
+
+    bool hay_herramientas = false;
+    for (int i = 0; i < nivel->tope_herramientas; i++) {
+        if(nivel->herramientas[i].posicion.fil == coordenada->fil && nivel->herramientas[i].posicion.col == coordenada->col) {
+            hay_herramientas = true;
+        }
+    }
+
+    if (!hay_pared_en_posicion && !entrada_y_coordenada_iguales && !salida_y_coordenada_iguales &&
+        !hay_obstaculos && !hay_herramientas) {
+        pude_ubicar = true;
+    }
+
+    return pude_ubicar;
+}
+
 void crear_coordenada_disponible(nivel_t* nivel, coordenada_t* coordenada, int numero_nivel) {
     bool pude_ubicar = false;
 
@@ -54,34 +83,117 @@ void crear_coordenada_disponible(nivel_t* nivel, coordenada_t* coordenada, int n
             coordenada->col = (rand() % 15) + 1;
         }
 
-        bool hay_pared_en_posicion = hay_pared(nivel, coordenada);
-        
-        
-        bool entrada_y_coordenada_iguales = nivel->entrada.fil == coordenada->fil && nivel->entrada.col == coordenada->col;
-        bool salida_y_coordenada_iguales = nivel->salida.fil == coordenada->fil && nivel->salida.col == coordenada->col;
-        
-        bool hay_obstaculos = false;
-        for (int i = 0; i < nivel->tope_obstaculos; i++) {
-            if(nivel->obstaculos[i].posicion.fil == coordenada->fil && nivel->obstaculos[i].posicion.col == coordenada->col) {
-                hay_obstaculos = true;
-            }
-        }
+       pude_ubicar = es_coordenada_disponible(nivel, coordenada);
+    }
+}
 
-        bool hay_herramientas = false;
-        for (int i = 0; i < nivel->tope_herramientas; i++) {
-            if(nivel->herramientas[i].posicion.fil == coordenada->fil && nivel->herramientas[i].posicion.col == coordenada->col) {
-                hay_herramientas = true;
-            }
-        }
+void crear_baldosas_pinches(int cantidad_baldosas_pinches, nivel_t* nivel, int numero_nivel){
+    coordenada_t posicion_baldosa_pinche;
+    crear_coordenada_disponible(nivel, &posicion_baldosa_pinche, numero_nivel);
+    nivel->obstaculos[nivel->tope_obstaculos].tipo = BALDOSA_PINCHE;
+    nivel->obstaculos[nivel->tope_obstaculos].posicion = posicion_baldosa_pinche;
+    printf("fila random: %i \n", posicion_baldosa_pinche.fil);
+    printf("columna random: %i \n", posicion_baldosa_pinche.col);
+    nivel->tope_obstaculos++;
 
-        if (!hay_pared_en_posicion && !entrada_y_coordenada_iguales && !salida_y_coordenada_iguales &&
-            !hay_obstaculos && !hay_herramientas) {
-            pude_ubicar = true;
+    for (int i = 0; i < cantidad_baldosas_pinches - 1; i++) {
+        coordenada_t nuevo_piche_derecha;
+        nuevo_piche_derecha.col = posicion_baldosa_pinche.col+1;
+        nuevo_piche_derecha.fil = posicion_baldosa_pinche.fil;
+        coordenada_t nuevo_piche_izq;
+        nuevo_piche_izq.col = posicion_baldosa_pinche.col-1;
+        nuevo_piche_izq.fil = posicion_baldosa_pinche.fil;
+        coordenada_t nuevo_piche_arriba;
+        nuevo_piche_arriba.col = posicion_baldosa_pinche.col;
+        nuevo_piche_arriba.fil = posicion_baldosa_pinche.fil-1;
+        coordenada_t nuevo_piche_abajo;
+        nuevo_piche_abajo.col = posicion_baldosa_pinche.col;
+        nuevo_piche_abajo.fil = posicion_baldosa_pinche.fil+1;
+
+        printf("ENTRE AL FOR\n");
+        printf("posicion fila baldosa pinche %i \n", posicion_baldosa_pinche.fil);
+        printf("posicion columna baldosa pinche %i \n", posicion_baldosa_pinche.col);
+        if (es_coordenada_disponible(nivel, &nuevo_piche_derecha)) {
+            printf("ENTRE ACAAA\n");
+            nivel->obstaculos[nivel->tope_obstaculos].tipo = BALDOSA_PINCHE;
+            nivel->obstaculos[nivel->tope_obstaculos].posicion = nuevo_piche_derecha;
+            nivel->tope_obstaculos++;
+        } else if (es_coordenada_disponible(nivel, &nuevo_piche_izq)) {
+            printf("ENTRE AQUIIII\n");
+            nivel->obstaculos[nivel->tope_obstaculos].tipo = BALDOSA_PINCHE;
+            nivel->obstaculos[nivel->tope_obstaculos].posicion = nuevo_piche_izq;
+            nivel->tope_obstaculos++;
+        } else if (es_coordenada_disponible(nivel, &nuevo_piche_arriba)) {
+            printf("ADSADSADAS\n");
+            nivel->obstaculos[nivel->tope_obstaculos].tipo = BALDOSA_PINCHE;
+            nivel->obstaculos[nivel->tope_obstaculos].posicion = nuevo_piche_arriba;
+            nivel->tope_obstaculos++;
+        } else if (es_coordenada_disponible(nivel, &nuevo_piche_abajo)) {
+            printf("ENTRE QWEWQEWQEWQE\n");
+            nivel->obstaculos[nivel->tope_obstaculos].tipo = BALDOSA_PINCHE;
+            nivel->obstaculos[nivel->tope_obstaculos].posicion = nuevo_piche_abajo;
+            nivel->tope_obstaculos++;   
+        } else {
+            printf("salio todo malardo\n");
         }
     }
 }
 
-void inicializar_nivel(nivel_t* nivel, int numero_nivel, int cantidad_baldosas_pinches, int cantidad_guardia, bool hay_bomba) {
+ void crear_monedas(int cantidad_monedas, nivel_t* nivel, int numero_nivel) {
+        for (int i = 0; i < cantidad_monedas; i++) {
+        coordenada_t posicion_monedas;
+        crear_coordenada_disponible(nivel, &posicion_monedas, numero_nivel);
+        nivel->herramientas[nivel->tope_herramientas].tipo = MONEDA;
+        nivel->herramientas[nivel->tope_herramientas].posicion = posicion_monedas;
+        nivel->tope_herramientas++;
+    }
+}
+
+
+void crear_bomba(nivel_t* nivel, int numero_nivel) {
+    coordenada_t posicion_bomba;
+    crear_coordenada_disponible(nivel, &posicion_bomba, numero_nivel);
+    nivel->obstaculos[nivel->tope_obstaculos].tipo = BOMBA;
+    nivel->obstaculos[nivel->tope_obstaculos].posicion = posicion_bomba;
+    nivel->tope_obstaculos++;
+}
+
+ void crear_interruptor(nivel_t* nivel, int numero_nivel){
+    coordenada_t posicion_interruptor;
+    crear_coordenada_disponible(nivel, &posicion_interruptor, numero_nivel);
+    nivel->herramientas[nivel->tope_herramientas].tipo = INTERRUPTOR;
+    nivel->herramientas[nivel->tope_herramientas].posicion = posicion_interruptor;
+    nivel->tope_herramientas++;
+}
+
+ void crear_llave(nivel_t* nivel, int numero_nivel) {
+    coordenada_t posicion_llave;
+    crear_coordenada_disponible(nivel, &posicion_llave, numero_nivel);
+    nivel->herramientas[nivel->tope_herramientas].tipo = LLAVE;
+    nivel->herramientas[nivel->tope_herramientas].posicion = posicion_llave;
+    nivel->tope_herramientas++;
+}
+
+void crear_baldosa_teletransportadora(nivel_t* nivel, int numero_nivel) {
+    coordenada_t posicion_baldoza_transportadora;
+    crear_coordenada_disponible(nivel, &posicion_baldoza_transportadora, numero_nivel);
+    nivel->herramientas[nivel->tope_herramientas].tipo = BALDOSA_TELETRANSPORTADORA;
+    nivel->herramientas[nivel->tope_herramientas].posicion = posicion_baldoza_transportadora;
+    nivel->tope_herramientas++;
+}
+
+void crear_guardia_robot(nivel_t* nivel, int numero_nivel, int cantidad_guardias) {
+     for (int i = 0; i < cantidad_guardias; i++) {
+        coordenada_t posicion_guardia_robot;
+        crear_coordenada_disponible(nivel, &posicion_guardia_robot, numero_nivel);
+        nivel->obstaculos[nivel->tope_obstaculos].tipo = GUARDIA;
+        nivel->obstaculos[nivel->tope_obstaculos].posicion = posicion_guardia_robot;
+        nivel->tope_obstaculos++;
+        crear_baldosa_teletransportadora(nivel, numero_nivel);
+    }
+}
+
+void inicializar_nivel(nivel_t* nivel, int numero_nivel, int cantidad_baldosas_pinches, int cantidad_guardias, bool hay_bomba) {
 
     nivel->tope_herramientas = 0;
     nivel->tope_obstaculos = 0;
@@ -99,57 +211,19 @@ void inicializar_nivel(nivel_t* nivel, int numero_nivel, int cantidad_baldosas_p
     crear_coordenada_disponible(nivel, &salida, numero_nivel);
     nivel->salida = salida;
 
+    crear_baldosas_pinches(cantidad_baldosas_pinches, nivel, numero_nivel);
+    crear_monedas(cantidad_monedas, nivel, numero_nivel);
 
-    for (int i = 0; i < cantidad_baldosas_pinches; i++) {
-        coordenada_t posicion_baldosa_pinche;
-        crear_coordenada_disponible(nivel, &posicion_baldosa_pinche, numero_nivel);
-        nivel->obstaculos[i].tipo = BALDOSA_PINCHE;
-        nivel->obstaculos[i].posicion = posicion_baldosa_pinche;
-        nivel->tope_obstaculos++;
-    }
-    
-    for (int i = 0; i < cantidad_monedas; i++) {
-        coordenada_t posicion_monedas;
-        crear_coordenada_disponible(nivel, &posicion_monedas, numero_nivel);
-        nivel->herramientas[nivel->tope_herramientas].tipo = MONEDA;
-        nivel->herramientas[nivel->tope_herramientas].posicion = posicion_monedas;
-        nivel->tope_herramientas++;
-    }
-    
     if (hay_bomba) {
-        coordenada_t posicion_bomba;
-        crear_coordenada_disponible(nivel, &posicion_bomba, numero_nivel);
-        nivel->obstaculos[nivel->tope_obstaculos].tipo = BOMBA;
-        nivel->obstaculos[nivel->tope_obstaculos].posicion = posicion_bomba;
-        nivel->tope_obstaculos++;
-
-        coordenada_t posicion_interruptor;
-        crear_coordenada_disponible(nivel, &posicion_interruptor, numero_nivel);
-        nivel->herramientas[nivel->tope_herramientas].tipo = INTERRUPTOR;
-        nivel->herramientas[nivel->tope_herramientas].posicion = posicion_interruptor;
-        nivel->tope_herramientas++;
+        crear_bomba(nivel, numero_nivel);
+        crear_interruptor(nivel, numero_nivel);
+       
     } else {
-        coordenada_t posicion_llave;
-        crear_coordenada_disponible(nivel, &posicion_llave, numero_nivel);
-        nivel->herramientas[nivel->tope_herramientas].tipo = LLAVE;
-        nivel->herramientas[nivel->tope_herramientas].posicion = posicion_llave;
-        nivel->tope_herramientas++;
+       crear_llave(nivel, numero_nivel);
     } 
 
-    for (int i = 0; i < cantidad_guardia; i++) {
-        coordenada_t posicion_guardia_robot;
-        crear_coordenada_disponible(nivel, &posicion_guardia_robot, numero_nivel);
-        nivel->obstaculos[nivel->tope_obstaculos].tipo = GUARDIA;
-        nivel->obstaculos[nivel->tope_obstaculos].posicion = posicion_guardia_robot;
-        nivel->tope_obstaculos++;
-
-        coordenada_t posicion_baldoza_transportadora;
-        crear_coordenada_disponible(nivel, &posicion_baldoza_transportadora, numero_nivel);
-        nivel->herramientas[nivel->tope_herramientas].tipo = BALDOSA_TELETRANSPORTADORA;
-        nivel->herramientas[nivel->tope_herramientas].posicion = posicion_baldoza_transportadora;
-        nivel->tope_herramientas++;
-    }   
-
+    crear_guardia_robot(nivel, numero_nivel, cantidad_guardias);
+             
 }
 
 int estado_juego(juego_t juego) {
@@ -200,7 +274,7 @@ void crear_matriz_de_nivel (nivel_t nivel, int numero_nivel, char matriz[MAX_PAR
 }
 
 void mostrar_juego(juego_t juego) {
-    system("clear");
+    //system("clear");
     int dimension = DIMENSION_MENOR;
 
     if(juego.nivel_actual % 2 == 0) {
@@ -225,7 +299,7 @@ void cargar_personaje(personaje_t* personaje, char tipo_personaje) {
     personaje->movimientos = MOVIMIENTOS_INICIALES;
     personaje->murio = false;
     personaje->presiono_interruptor = false;
-    personaje->tiene_llave = true; //TODO Modificar
+    personaje->tiene_llave = false;
 }
 
 void inicializar_juego(juego_t* juego, char tipo_personaje) {
@@ -248,7 +322,7 @@ void inicializar_juego(juego_t* juego, char tipo_personaje) {
     juego->niveles[2] = nivel_tres;
     juego->niveles[3] = nivel_cuatro;
 
-    juego->nivel_actual = 1;
+    juego->nivel_actual = 4;
 
     juego->personaje.posicion.fil = juego->niveles[juego->nivel_actual-1].entrada.fil;
     juego->personaje.posicion.col = juego->niveles[juego->nivel_actual-1].entrada.col;
