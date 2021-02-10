@@ -33,6 +33,10 @@
 #define PAREDES '*'
 #define VACIO ' '
 
+
+/* pre: Funcion que recibe un puntero a variables de tipo nivel_t y coordenada_t
+post: Retorna un booleano, false si no se encuentra el caracter que representa una pared en la coordenada especificada, true si se
+encuentra  */
 bool hay_pared(nivel_t* nivel, coordenada_t* coordenada) {
     for (int i = 0; i < nivel->tope_paredes; i++) {
         if(nivel->paredes[i].fil == coordenada->fil && nivel->paredes[i].col == coordenada->col) {
@@ -41,7 +45,9 @@ bool hay_pared(nivel_t* nivel, coordenada_t* coordenada) {
     }
     return false;
 }
-
+/* pre: Funcion que recibe un puntero a variables de tipo nivel_t y coordenada_t
+post: Retorna un booleano, false si la coordenada esta ocupada por una herramienta, obstaculo, pared, entrada o salida, false si
+coordenada esta ocupada y no se puede agregar un objeto a la coordenada */
 bool es_coordenada_disponible(nivel_t* nivel, coordenada_t* coordenada) {
     bool hay_pared_en_posicion = hay_pared(nivel, coordenada);
     bool pude_ubicar = false;
@@ -71,6 +77,8 @@ bool es_coordenada_disponible(nivel_t* nivel, coordenada_t* coordenada) {
     return pude_ubicar;
 }
 
+/* pre: Metodo que recibe punteros a variables de tipo nivel_t y coordenada_t y una variable de tipo int entre 1 y 4
+post: Determina si la coordenada brindada esta disponible para ubicar objetos  */
 void crear_coordenada_disponible(nivel_t* nivel, coordenada_t* coordenada, int numero_nivel) {
     bool pude_ubicar = false;
 
@@ -87,6 +95,9 @@ void crear_coordenada_disponible(nivel_t* nivel, coordenada_t* coordenada, int n
     }
 }
 
+/* pre: Metodo que recibe un int con la cantidad de baldosas pinches segun el nivel en el que se encuente (4, 6 o 10), un int 
+que representa en nivel que se esta evaluando (entre 1 y 4) y un puntero a la variable de tipo nivel_t
+post: Ubica los obstaculos tipo baldosa pinche en la matriz de juego adyacentemente */
 void crear_baldosas_pinches(int cantidad_baldosas_pinches, nivel_t* nivel, int numero_nivel){
     coordenada_t posicion_baldosa_pinche;
     crear_coordenada_disponible(nivel, &posicion_baldosa_pinche, numero_nivel);
@@ -139,8 +150,11 @@ void crear_baldosas_pinches(int cantidad_baldosas_pinches, nivel_t* nivel, int n
     }
 }
 
- void crear_monedas(int cantidad_monedas, nivel_t* nivel, int numero_nivel) {
-        for (int i = 0; i < cantidad_monedas; i++) {
+/* pre: Metodo que recibe la cantidad de monedas a ubicar en la matriz de juego (valores posibles:) 2, 3 o 5), un puntero
+a la variable de tipo nivel_t y un int que representa el numero de nivel que se debe evaluar (valores posibles: 1, 2, 3, 4)
+post: Ubica las herramientas tipo moneda AlgoCOins en la matriz de juego */
+void crear_monedas(int cantidad_monedas, nivel_t* nivel, int numero_nivel) {
+    for (int i = 0; i < cantidad_monedas; i++) {
         coordenada_t posicion_monedas;
         crear_coordenada_disponible(nivel, &posicion_monedas, numero_nivel);
         nivel->herramientas[nivel->tope_herramientas].tipo = MONEDA;
@@ -149,7 +163,9 @@ void crear_baldosas_pinches(int cantidad_baldosas_pinches, nivel_t* nivel, int n
     }
 }
 
-
+/* pre: Metodo que recibe un puntero a la variable de tipo nivel_t y un int que representa
+el numero de nivel que se debe evaluar (valores posibles: 1, 2, 3, 4) 
+post: Ubica los obstaculos tipo bomba en la matriz de juego  */
 void crear_bomba(nivel_t* nivel, int numero_nivel) {
     coordenada_t posicion_bomba;
     crear_coordenada_disponible(nivel, &posicion_bomba, numero_nivel);
@@ -158,6 +174,9 @@ void crear_bomba(nivel_t* nivel, int numero_nivel) {
     nivel->tope_obstaculos++;
 }
 
+/* pre: Metodo que recibe un puntero a la variable de tipo nivel_t y un int que representa
+el numero de nivel que se debe evaluar (valores posibles: 1, 2, 3, 4)
+post: Ubica la herramienta tipo interruptor en la matriz de juego  */
  void crear_interruptor(nivel_t* nivel, int numero_nivel){
     coordenada_t posicion_interruptor;
     crear_coordenada_disponible(nivel, &posicion_interruptor, numero_nivel);
@@ -166,6 +185,9 @@ void crear_bomba(nivel_t* nivel, int numero_nivel) {
     nivel->tope_herramientas++;
 }
 
+/* pre: Metodo que recibe un puntero a la variable de tipo nivel_t y un int que representa
+el numero de nivel que se debe evaluar (valores posibles: 1, 2, 3, 4)
+post: Ubica la herramienta tipo llave en la matriz de juego  */
  void crear_llave(nivel_t* nivel, int numero_nivel) {
     coordenada_t posicion_llave;
     crear_coordenada_disponible(nivel, &posicion_llave, numero_nivel);
@@ -174,6 +196,9 @@ void crear_bomba(nivel_t* nivel, int numero_nivel) {
     nivel->tope_herramientas++;
 }
 
+/* pre: Metodo que recibe un puntero a la variable de tipo nivel_t y un int que representa
+el numero de nivel que se debe evaluar (valores posibles: 1, 2, 3, 4)
+post: Ubica las herramientas tipo baldosa teletransportadora en la matriz de juego  */
 void crear_baldosa_teletransportadora(nivel_t* nivel, int numero_nivel) {
     coordenada_t posicion_baldoza_transportadora;
     crear_coordenada_disponible(nivel, &posicion_baldoza_transportadora, numero_nivel);
@@ -182,6 +207,10 @@ void crear_baldosa_teletransportadora(nivel_t* nivel, int numero_nivel) {
     nivel->tope_herramientas++;
 }
 
+/* pre: Metodo que recibe un puntero a la variable de tipo nivel_t, un int que representa
+el numero de nivel que se debe evaluar (valores posibles: 1, 2, 3, 4) y un int que representa la cantidad de
+obstaculos tipo guardias robot a ubicar en la matriz de juego.
+post: Ubica los obstaculos tipo guardia robot en la matriz de juego  */
 void crear_guardia_robot(nivel_t* nivel, int numero_nivel, int cantidad_guardias) {
      for (int i = 0; i < cantidad_guardias; i++) {
         coordenada_t posicion_guardia_robot;
@@ -194,7 +223,6 @@ void crear_guardia_robot(nivel_t* nivel, int numero_nivel, int cantidad_guardias
 }
 
 void inicializar_nivel(nivel_t* nivel, int numero_nivel, int cantidad_baldosas_pinches, int cantidad_guardias, bool hay_bomba) {
-
     nivel->tope_herramientas = 0;
     nivel->tope_obstaculos = 0;
     nivel->tope_paredes = 0;
@@ -246,7 +274,9 @@ int estado_nivel(personaje_t personaje, coordenada_t salida) {
     }
 }
 
-
+/* pre: Metodo que recibe un nivel con todas sus estructuras validas, un int que representa el nivel en el que se esta jugando y
+una matriz de caracteres que representa la matriz jugable
+post: Define los espacios de la matriz ocupados por paredes, entrada, salida, herramientas y obstaculos */
 void crear_matriz_de_nivel (nivel_t nivel, int numero_nivel, char matriz[MAX_PAREDES][MAX_PAREDES], 
     int dimension, personaje_t personaje) {
 
@@ -294,6 +324,9 @@ void mostrar_juego(juego_t juego) {
     }
 }
 
+/* pre: Metodo que recibe una variable de tipo personaje con todas sus estructuras validas y un caracter que representa
+el personaje con el que se va a jugar (valores posibles: C, B, S, H, P, J)
+post:  Inicializa los valores de la estructura del personaje*/
 void cargar_personaje(personaje_t* personaje, char tipo_personaje) {
     personaje->tipo = tipo_personaje;
     personaje->movimientos = MOVIMIENTOS_INICIALES;
@@ -328,6 +361,9 @@ void inicializar_juego(juego_t* juego, char tipo_personaje) {
     juego->personaje.posicion.col = juego->niveles[juego->nivel_actual-1].entrada.col;
 }
 
+/* pre: Metodo que recibe un puntero a la variable de tipo coordenada_t y un caracter que representa el movimiento
+que el usuario desea realizar (valores posibles: D, A, W, S)
+post:  Actualiza la posicion del personaje de acuerdo al caracter ingresado*/
 void obtener_siguiente_posicion(coordenada_t* posicion, char movimiento) {
      if (movimiento == DERECHA) {
            posicion->fil = posicion->fil;
@@ -348,6 +384,8 @@ void obtener_siguiente_posicion(coordenada_t* posicion, char movimiento) {
     }
 }
 
+/* pre: Metodo que recibe un array de tipo elemento_t, un puntero al tope de herramientas y una variable de tipo coordenada_t
+post: Elimina la herramienta del array de acuerdo a la posicion recibida y actualiza el tope de herramientas */
 void sacar_elemento_en_posicion(elemento_t array_elementos[MAX_HERRAMIENTAS], int* tope_herramientas, coordenada_t coordenada_posicion) {
   bool encontre_elemento = false;
   int i = 0;
@@ -366,6 +404,10 @@ void sacar_elemento_en_posicion(elemento_t array_elementos[MAX_HERRAMIENTAS], in
     *tope_herramientas -= 1;
 }
 
+/* pre: Metodo que recibe un array de tipo elemento_t, un int que representa el tope del vector de herramientas y un puntero a la 
+variable de tipo coordenada_t
+post: Actualiza la coordenada de la posicion del personaje a otra herramienta de tipo baldosa teletransportadora 
+que se encuentre en el array de herramientas */
 void ir_a_siguiente_baldosa_teletransportadora (elemento_t herramientas[MAX_HERRAMIENTAS], int tope_herramientas, coordenada_t* coordenada_posicion) {
     bool encontre_la_baldosa = false;
     int i = 0;
@@ -387,13 +429,14 @@ void ir_a_siguiente_baldosa_teletransportadora (elemento_t herramientas[MAX_HERR
         } else {
             i++;
         }
-        
     }
 
     coordenada_posicion->col = herramientas[i].posicion.col;
     coordenada_posicion->fil = herramientas[i].posicion.fil;
 }
 
+/* pre: 
+post:  */
 void mover_personaje(juego_t* juego, char movimiento) {
     coordenada_t siguiente_posicion = juego->personaje.posicion;
     obtener_siguiente_posicion(&siguiente_posicion, movimiento);
