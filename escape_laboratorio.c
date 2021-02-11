@@ -47,7 +47,7 @@ void obtener_mas_informacion() {
 }
 
 /* pre: Metodo que recibe una variable de tipo caracter (valores posibles: C, B, S, H, P, J)
-post: Muestra por pantalla el nombre completo del personaje recibido  */
+post: Muestra por pantalla el superpoder del personaje  */
 void mostrar_nombre_personaje(char tipo_personaje) {
     char superpoder[MAX_SUPERPODER];
     switch (tipo_personaje) {
