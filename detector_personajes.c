@@ -186,30 +186,30 @@ char calculoPersonajeFinal(int puntajeTotal, int alturaPersonaje) {
         int diferenciaPersonaje1 = abs(ALTURA_JHONNY_BRAVO - alturaPersonaje);
         int diferenciaPersonaje2 = abs(ALTURA_CORAJE - alturaPersonaje);
         if (diferenciaPersonaje1 > diferenciaPersonaje2){
-            printf("El sistema detecto al personaje: Coraje. Preparese para jugar \n");
+            printf("El sistema detecto al personaje: Coraje.\n");
             return CORAJE;
         } else {
-            printf("El sistema detecto al personaje: Jhonny Bravo. Preparese para jugar \n");
+            printf("El sistema detecto al personaje: Jhonny Bravo.\n");
             return JOHNNY_BRAVO;
         }
     } else if ((puntajeTotal >= 81) && (puntajeTotal <= 160)) {
         int diferenciaPersonaje1 = abs(ALTURA_PURO_HUESO - alturaPersonaje);
         int diferenciaPersonaje2 = abs(ALTURA_POLLITO - alturaPersonaje);
         if (diferenciaPersonaje1 > diferenciaPersonaje2){
-            printf("El sistema detecto al personaje: Pollito. Preparese para jugar \n");
+            printf("El sistema detecto al personaje: Pollito.\n");
             return POLLITO;
         } else {
-            printf("El sistema detecto al personaje: Puro Hueso. Preparese para jugar \n");
+            printf("El sistema detecto al personaje: Puro Hueso.\n");
             return PURO_HUESO;
         }
     } else if ((puntajeTotal >= 161) && (puntajeTotal <= 240)) {
         int diferenciaPersonaje1 = abs(ALTURA_BLUE - alturaPersonaje);
         int diferenciaPersonaje2 = abs(ALTURA_BELLOTA - alturaPersonaje);
         if (diferenciaPersonaje1 > diferenciaPersonaje2){
-            printf("El sistema detecto al personaje: Bellota. Preparese para jugar \n");
+            printf("El sistema detecto al personaje: Bellota.\n");
             return BELLOTA;
         } else {
-            printf("El sistema detecto al personaje: Blue. Preparese para jugar \n");
+            printf("El sistema detecto al personaje: Blue.\n");
             return BLUE;
         }
     }

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "escape_laboratorio.h"
+#include "interaccion_usuario.h"
 #include "utiles.h"
 
 #define ENTRADA 'E'
@@ -32,7 +33,65 @@
 #define JOHNNY_BRAVO 'J'
 #define PAREDES '*'
 #define VACIO ' '
+#define MAX_NOMBRE 30
+#define MAX_SUPERPODER 200
 
+/*  Muestra por pantalla la bienvenida al juego para el usuario  */
+void bienvenida() {
+    printf("Bienvenido al juego ~Escape del Laboratorio~\nComo primer paso, responde algunas preguntas para asignarte un personaje para jugar. Empecemos!\n");
+}
+
+/*  Muestra por pantalla el mensaje para que el usuario decida si desea obtener mas informacion sobre el juego */
+void obtener_mas_informacion() {
+    printf("Queres obtener mas informacion sobre el juego y como jugar? Responde S(si) para saber mas u otra tecla para continuar\n");
+}
+
+/* pre: Metodo que recibe una variable de tipo caracter (valores posibles: C, B, S, H, P, J)
+post: Muestra por pantalla el nombre completo del personaje recibido  */
+void mostrar_nombre_personaje(char tipo_personaje) {
+    char superpoder[MAX_SUPERPODER];
+    switch (tipo_personaje) {
+    case CORAJE:
+        strncpy(superpoder, "No lo afectan los guardias robot", MAX_SUPERPODER);
+        break;
+    case BLUE:
+        strncpy(superpoder, "Si muere obtiene otra vida", MAX_SUPERPODER);
+        break;
+    case BELLOTA:
+        strncpy(superpoder, "Si muere obtiene otra vida", MAX_SUPERPODER);
+        break;
+    case PURO_HUESO:
+        strncpy(superpoder, "No lo afectan las baldosas pinche", MAX_SUPERPODER);
+        break;
+    case POLLITO:
+        strncpy(superpoder, "No lo afectan las baldosas pinche", MAX_SUPERPODER);
+        break;
+    case JOHNNY_BRAVO:
+        strncpy(superpoder, "No lo afectan los guardias robot", MAX_SUPERPODER);
+        break;
+    default:
+        break;
+    }
+    printf("Aparecera en el juego con la letra %c \nSu superpoder es: %s\n", tipo_personaje, superpoder);
+}
+
+/*  Muestra por pantalla las reglas del juego  */
+ void mostrar_informacion_del_juego() {
+
+    printf("*El juego consiste en tratar de salir del laboratorio de Dexter, evitando los obstaculos y utilizando las herramientas* \n");
+
+    printf("*Los obstaculos hacen que pierdas movimientos o incluso que mueras! Tene cuidado con las bombas(B), guardias robot(G) y baldosas pinche(P)* \n");
+
+    printf("*Las herramientas te ayudaran a salir del laboratorio, las monedas(M) te sumaran un movimiento, el interruptor(I) hara visible la llave(L) que te permitira utilizar la salida*\n");
+
+    printf("*Para mover a tu personaje debes presionar las teclas A (izquierda), W (Arriba), D (Derecha) o S (Abajo)* \n");
+
+    printf("*Las baldosas del laboratorio son resbaladizas! Tu personaje se movera de pared a pared*\n");
+
+    printf("*Cuidado con quedarte sin movimientos! Sin movimientos tu personaje muere!*\n");
+
+    printf("Que te diviertas!\n");
+}
 
 /* pre: Funcion que recibe un puntero a variables de tipo nivel_t y coordenada_t
 post: Retorna un booleano, false si no se encuentra el caracter que representa una pared en la coordenada especificada, true si se
@@ -95,59 +154,75 @@ void crear_coordenada_disponible(nivel_t* nivel, coordenada_t* coordenada, int n
     }
 }
 
+/* pre: Metodo que recibe un puntero a una variable de tipo int con la cantidad de baldosas pinches segun el nivel en el que 
+se encuente (4, 6 o 10), un puntero a la variable de tipo nivel_t y una variale de tipo coordenada_t
+post: Ubica los obstaculos tipo baldosa pinche en la matriz de juego adyacentemente */
+void crear_baldosas_pinche_adyacentes(int* cantidad_baldosas_pinches, nivel_t* nivel, coordenada_t posicion_baldosa_pinche) {
+    coordenada_t nuevo_pinche_derecha;
+    nuevo_pinche_derecha.col = posicion_baldosa_pinche.col+1;
+    nuevo_pinche_derecha.fil = posicion_baldosa_pinche.fil;
+    coordenada_t nuevo_pinche_izq;
+    nuevo_pinche_izq.col = posicion_baldosa_pinche.col-1;
+    nuevo_pinche_izq.fil = posicion_baldosa_pinche.fil;
+    coordenada_t nuevo_pinche_arriba;
+    nuevo_pinche_arriba.col = posicion_baldosa_pinche.col;
+    nuevo_pinche_arriba.fil = posicion_baldosa_pinche.fil-1;
+    coordenada_t nuevo_pinche_abajo;
+    nuevo_pinche_abajo.col = posicion_baldosa_pinche.col;
+    nuevo_pinche_abajo.fil = posicion_baldosa_pinche.fil+1;
+
+    if (es_coordenada_disponible(nivel, &nuevo_pinche_derecha) && (*cantidad_baldosas_pinches > 0)) {
+        nivel->obstaculos[nivel->tope_obstaculos].tipo = BALDOSA_PINCHE;
+        nivel->obstaculos[nivel->tope_obstaculos].posicion = nuevo_pinche_derecha;
+        nivel->tope_obstaculos++;
+        posicion_baldosa_pinche.fil = nuevo_pinche_derecha.fil;
+        posicion_baldosa_pinche.col = nuevo_pinche_derecha.col;
+        *cantidad_baldosas_pinches -= 1;
+        crear_baldosas_pinche_adyacentes(cantidad_baldosas_pinches, nivel, nuevo_pinche_derecha);
+    } 
+
+    if (es_coordenada_disponible(nivel, &nuevo_pinche_izq) && (*cantidad_baldosas_pinches > 0)) {
+        nivel->obstaculos[nivel->tope_obstaculos].tipo = BALDOSA_PINCHE;
+        nivel->obstaculos[nivel->tope_obstaculos].posicion = nuevo_pinche_izq;
+        nivel->tope_obstaculos++;
+        posicion_baldosa_pinche.fil = nuevo_pinche_izq.fil;
+        posicion_baldosa_pinche.col = nuevo_pinche_izq.col;
+        *cantidad_baldosas_pinches -= 1;
+        crear_baldosas_pinche_adyacentes(cantidad_baldosas_pinches, nivel, nuevo_pinche_izq);
+    } 
+    
+    if (es_coordenada_disponible(nivel, &nuevo_pinche_arriba) && (*cantidad_baldosas_pinches > 0)) {
+        nivel->obstaculos[nivel->tope_obstaculos].tipo = BALDOSA_PINCHE;
+        nivel->obstaculos[nivel->tope_obstaculos].posicion = nuevo_pinche_arriba;
+        nivel->tope_obstaculos++;
+        posicion_baldosa_pinche.fil = nuevo_pinche_arriba.fil;
+        posicion_baldosa_pinche.col = nuevo_pinche_arriba.col;
+        *cantidad_baldosas_pinches -= 1;
+        crear_baldosas_pinche_adyacentes(cantidad_baldosas_pinches, nivel, nuevo_pinche_arriba);
+    }
+    
+    if (es_coordenada_disponible(nivel, &nuevo_pinche_abajo) && (*cantidad_baldosas_pinches > 0)) {
+        nivel->obstaculos[nivel->tope_obstaculos].tipo = BALDOSA_PINCHE;
+        nivel->obstaculos[nivel->tope_obstaculos].posicion = nuevo_pinche_abajo;
+        nivel->tope_obstaculos++;
+        posicion_baldosa_pinche.fil = nuevo_pinche_abajo.fil;
+        posicion_baldosa_pinche.col = nuevo_pinche_abajo.col;
+        *cantidad_baldosas_pinches -= 1;
+        crear_baldosas_pinche_adyacentes(cantidad_baldosas_pinches, nivel, nuevo_pinche_abajo);
+    }
+}
+
 /* pre: Metodo que recibe un int con la cantidad de baldosas pinches segun el nivel en el que se encuente (4, 6 o 10), un int 
 que representa en nivel que se esta evaluando (entre 1 y 4) y un puntero a la variable de tipo nivel_t
-post: Ubica los obstaculos tipo baldosa pinche en la matriz de juego adyacentemente */
+post: Ubica un obstaculo de tipo baldosa pinche en la matriz de juego de forma random*/
 void crear_baldosas_pinches(int cantidad_baldosas_pinches, nivel_t* nivel, int numero_nivel){
     coordenada_t posicion_baldosa_pinche;
     crear_coordenada_disponible(nivel, &posicion_baldosa_pinche, numero_nivel);
     nivel->obstaculos[nivel->tope_obstaculos].tipo = BALDOSA_PINCHE;
     nivel->obstaculos[nivel->tope_obstaculos].posicion = posicion_baldosa_pinche;
-    printf("fila random: %i \n", posicion_baldosa_pinche.fil);
-    printf("columna random: %i \n", posicion_baldosa_pinche.col);
     nivel->tope_obstaculos++;
-
-    for (int i = 0; i < cantidad_baldosas_pinches - 1; i++) {
-        coordenada_t nuevo_piche_derecha;
-        nuevo_piche_derecha.col = posicion_baldosa_pinche.col+1;
-        nuevo_piche_derecha.fil = posicion_baldosa_pinche.fil;
-        coordenada_t nuevo_piche_izq;
-        nuevo_piche_izq.col = posicion_baldosa_pinche.col-1;
-        nuevo_piche_izq.fil = posicion_baldosa_pinche.fil;
-        coordenada_t nuevo_piche_arriba;
-        nuevo_piche_arriba.col = posicion_baldosa_pinche.col;
-        nuevo_piche_arriba.fil = posicion_baldosa_pinche.fil-1;
-        coordenada_t nuevo_piche_abajo;
-        nuevo_piche_abajo.col = posicion_baldosa_pinche.col;
-        nuevo_piche_abajo.fil = posicion_baldosa_pinche.fil+1;
-
-        printf("ENTRE AL FOR\n");
-        printf("posicion fila baldosa pinche %i \n", posicion_baldosa_pinche.fil);
-        printf("posicion columna baldosa pinche %i \n", posicion_baldosa_pinche.col);
-        if (es_coordenada_disponible(nivel, &nuevo_piche_derecha)) {
-            printf("ENTRE ACAAA\n");
-            nivel->obstaculos[nivel->tope_obstaculos].tipo = BALDOSA_PINCHE;
-            nivel->obstaculos[nivel->tope_obstaculos].posicion = nuevo_piche_derecha;
-            nivel->tope_obstaculos++;
-        } else if (es_coordenada_disponible(nivel, &nuevo_piche_izq)) {
-            printf("ENTRE AQUIIII\n");
-            nivel->obstaculos[nivel->tope_obstaculos].tipo = BALDOSA_PINCHE;
-            nivel->obstaculos[nivel->tope_obstaculos].posicion = nuevo_piche_izq;
-            nivel->tope_obstaculos++;
-        } else if (es_coordenada_disponible(nivel, &nuevo_piche_arriba)) {
-            printf("ADSADSADAS\n");
-            nivel->obstaculos[nivel->tope_obstaculos].tipo = BALDOSA_PINCHE;
-            nivel->obstaculos[nivel->tope_obstaculos].posicion = nuevo_piche_arriba;
-            nivel->tope_obstaculos++;
-        } else if (es_coordenada_disponible(nivel, &nuevo_piche_abajo)) {
-            printf("ENTRE QWEWQEWQEWQE\n");
-            nivel->obstaculos[nivel->tope_obstaculos].tipo = BALDOSA_PINCHE;
-            nivel->obstaculos[nivel->tope_obstaculos].posicion = nuevo_piche_abajo;
-            nivel->tope_obstaculos++;   
-        } else {
-            printf("salio todo malardo\n");
-        }
-    }
+    cantidad_baldosas_pinches -= 1;
+    crear_baldosas_pinche_adyacentes(&cantidad_baldosas_pinches, nivel, posicion_baldosa_pinche);
 }
 
 /* pre: Metodo que recibe la cantidad de monedas a ubicar en la matriz de juego (valores posibles:) 2, 3 o 5), un puntero
@@ -245,13 +320,11 @@ void inicializar_nivel(nivel_t* nivel, int numero_nivel, int cantidad_baldosas_p
     if (hay_bomba) {
         crear_bomba(nivel, numero_nivel);
         crear_interruptor(nivel, numero_nivel);
-       
     } else {
        crear_llave(nivel, numero_nivel);
     } 
 
     crear_guardia_robot(nivel, numero_nivel, cantidad_guardias);
-             
 }
 
 int estado_juego(juego_t juego) {
@@ -304,7 +377,7 @@ void crear_matriz_de_nivel (nivel_t nivel, int numero_nivel, char matriz[MAX_PAR
 }
 
 void mostrar_juego(juego_t juego) {
-    //system("clear");
+    system("clear");
     int dimension = DIMENSION_MENOR;
 
     if(juego.nivel_actual % 2 == 0) {
@@ -355,7 +428,7 @@ void inicializar_juego(juego_t* juego, char tipo_personaje) {
     juego->niveles[2] = nivel_tres;
     juego->niveles[3] = nivel_cuatro;
 
-    juego->nivel_actual = 4;
+    juego->nivel_actual = 1;
 
     juego->personaje.posicion.fil = juego->niveles[juego->nivel_actual-1].entrada.fil;
     juego->personaje.posicion.col = juego->niveles[juego->nivel_actual-1].entrada.col;
@@ -435,8 +508,10 @@ void ir_a_siguiente_baldosa_teletransportadora (elemento_t herramientas[MAX_HERR
     coordenada_posicion->fil = herramientas[i].posicion.fil;
 }
 
-/* pre: 
-post:  */
+/* pre: Metodo que recibe un puntero a la variable de tipo juego_t y una variable de tipo char que representa la direccion
+del movimiento que el usuario quiere que el personaje haga
+post: Evalua el contenido de la matriz sobre el movimiento del personaje, sumando o restando movimientos y evaluando el 
+estado de la partida */
 void mover_personaje(juego_t* juego, char movimiento) {
     coordenada_t siguiente_posicion = juego->personaje.posicion;
     obtener_siguiente_posicion(&siguiente_posicion, movimiento);
